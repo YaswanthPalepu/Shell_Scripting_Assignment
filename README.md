@@ -10,7 +10,7 @@ Input:-
 
 Explanation of a conf file line.
 
-view ; scale ; component name ; ETL ; vdopia-etl= <count>
+view ; scale ; component name ; ETL ; vdopia-etl= count
 
 Note:- vdopiasample stands for Auction & vdopiasample-bid is for Bid
 
