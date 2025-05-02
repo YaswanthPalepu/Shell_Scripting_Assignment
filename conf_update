@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# This script updates the sig.conf file based on user input
+
+# Ask for Component Name with validation
+echo "Please enter Component Name:"
+echo "Options: INGESTOR, JOINER, WRANGLER, VALIDATOR"
+read component
+
+# Validate Component Name
+while [[ "$component" != "INGESTOR" && "$component" != "JOINER" && "$component" != "WRANGLER" && "$component" != "VALIDATOR" ]]; do
+    echo "Invalid input! Please enter one of: INGESTOR, JOINER, WRANGLER, VALIDATOR"
+    read component
+done
+
+# Ask for Scale with validation
+echo "Please enter Scale:"
+echo "Options: MID, HIGH, LOW"
+read scale
+
+# Validate Scale
+while [[ "$scale" != "MID" && "$scale" != "HIGH" && "$scale" != "LOW" ]]; do
+    echo "Invalid input! Please enter one of: MID, HIGH, LOW"
+    read scale
+done
+
+# Ask for View with validation
+echo "Please enter View:"
+echo "Options: Auction, Bid"
+read view
+
+# Validate View
+while [[ "$view" != "Auction" && "$view" != "Bid" ]]; do
+    echo "Invalid input! Please enter one of: Auction, Bid"
+    read view
+done
+
+# Convert View to the proper string
+if [[ "$view" == "Auction" ]]; then
+    view_string="vdopiasample"
+else
+    view_string="vdopiasample-bid"
+fi
+
+# Ask for Count with validation
+echo "Please enter Count (single digit 0-9):"
+read count
+
+# Validate Count
+while ! [[ "$count" =~ ^[0-9]$ ]]; do
+    echo "Invalid input! Please enter a single digit (0-9)"
+    read count
+done
+
+# Create the new line for the config file
+new_line="$view_string ; $scale ; $component ; ETL ; vdopia-etl=$count"
+
+# Check if sig.conf exists
+if [ ! -f "sig.conf" ]; then
+    echo "Creating new sig.conf file"
+    echo "$new_line" > sig.conf
+    echo "Configuration added successfully!"
+    exit 0
+fi
+
+# Check if component exists in file
+if grep -q " $component " "sig.conf"; then
+    # Replace existing line
+    sed -i "s/.*; $component ;.*/$new_line/" sig.conf
+    echo "Updated configuration for $component in sig.conf"
+else
+    # Add new line
+    echo "$new_line" >> sig.conf
+    echo "Added new configuration for $component to sig.conf"
+fi
+
+echo "Configuration set to: $new_line"
